@@ -4,21 +4,7 @@
 #
 # DISPLAY
 
-function display_menu_controller_banner () {
-    local MENU_LABEL="$1"
-    check_md_menu_banner_on
-    if [ $? -ne 0 ]; then
-        return 1
-    fi
-    echo; symbol_msg "${BLUE}$SCRIPT_NAME${RESET}" \
-        "${MD_CONTROLLERS[$MENU_LABEL]}"; echo
-    check_menu_controller_extended_banner "$MENU_LABEL"
-    if [ $? -eq 0 ]; then
-        ${MD_CONTROLLER_BANNERS["$MENU_LABEL"]}
-    fi
-    return $?
-}
-
+# TODO - Under construction
 function display_settings () {
     DISPLAY_LOGGING=`format_flag_colors "$MD_LOGGING"`
     DISPLAY_MENU_BANNER=`format_flag_colors "$MD_MENU_BANNER"`
@@ -42,6 +28,58 @@ function display_settings () {
 [ ${CYAN}Safety${RESET}                 ]: $DISPLAY_SAFETY
 [ ${CYAN}Superuser${RESET}              ]: $DISPLAY_SUPERUSER
     " | column
+    return $?
+}
+
+function display_available_wireless_access_points () {
+    AVAILABLE_ESSID=`${MD_CARGO['wifi-commander']} \
+        "$CONF_FILE_PATH" --show-ssid | sed 's/\"//g'`
+    EXIT_CODE=$?
+    echo "
+${CYAN}Wireless Network Access Points${RESET}
+$AVAILABLE_ESSID"
+    return $EXIT_CODE
+}
+
+function display_block_devices () {
+    echo; echo -n "${CYAN}DEVICE${RESET}" && \
+        echo ${CYAN}`lsblk | grep -e MOUNTPOINT`${RESET} && \
+        lsblk | grep -e 'disk' | sed 's/^/\/dev\//g'
+    EXIT_CODE=$?
+    echo; return $EXIT_CODE
+}
+
+function display_file_content () {
+    local FILE_PATH="$1"
+    check_file_exists "$FILE_PATH"
+    if [ $? -ne 0 ]; then
+        echo; error_msg "Invalid file path ${RED}$FILE_PATH${RESET}."
+        return 1
+    fi
+    cat "$FILE_PATH"
+    return $?
+}
+
+function display_project_banner () {
+    figlet -f lean -w 1000 "$SCRIPT_NAME" > "${MD_DEFAULT['tmp-file']}"
+    clear; echo -n "${RED}`cat ${MD_DEFAULT['tmp-file']}`${RESET}
+    "
+    echo -n > ${MD_DEFAULT['tmp-file']}
+    return 0
+}
+
+function display_menu_controller_banner () {
+    local MENU_LABEL="$1"
+    check_md_menu_banner_on
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    echo; symbol_msg "${BLUE}$SCRIPT_NAME${RESET}" \
+        "${MD_CONTROLLERS[$MENU_LABEL]}"; echo
+    check_menu_controller_extended_banner "$MENU_LABEL"
+    if [ $? -eq 0 ]; then
+        ${MD_CONTROLLER_BANNERS["$MENU_LABEL"]}
+    fi
     return $?
 }
 
