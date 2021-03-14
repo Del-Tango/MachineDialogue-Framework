@@ -87,7 +87,7 @@ function create_directory() {
     return $?
 }
 
-function create_menu_controler () {
+function create_menu_controller () {
     local LABEL="$1"
     local DESCRIPTION="$2"
     local OPTIONS="$3"
