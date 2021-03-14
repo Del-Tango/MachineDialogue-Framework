@@ -8,6 +8,7 @@ function load_import () {
     local IMPORT_LABEL="$1"
     local IMPORT_VALUE="$2"
     MD_CARGO[$IMPORT_LABEL]=$IMPORT_VALUE
+    ok_msg "Successfully loaded import (${GREEN}$IMPORT_LABEL - $IMPORT_VALUE${RESET})."
     return 0
 }
 
@@ -15,6 +16,7 @@ function load_cargo () {
     local CARGO_LABEL="$1"
     local CARGO_VALUE="$2"
     MD_CARGO[$CARGO_LABEL]=$CARGO_VALUE
+    ok_msg "Successfully loaded cargo (${GREEN}$CARGO_LABEL - $CARGO_VALUE${RESET})."
     return 0
 }
 
