@@ -66,7 +66,7 @@ function load_safety () {
         nok_msg "Invalid safety flag value (${RED}$MD_SAFETY${RESET})."
     fi
     MD_SAFETY=$SAFETY
-    ok_mg "Successfully loaded safety flag value (${GREEN}$MD_SAFETY${RESET})."
+    ok_msg "Successfully loaded safety flag value (${GREEN}$MD_SAFETY${RESET})."
     return 0
 }
 
