@@ -288,7 +288,7 @@ function trap_signals () {
 
 function trap_interrupt_signal () {
     local COMMAND_STRING="$@"
-    trap_signals "$COMMAND_STRING" "SIGING"
+    trap_signals "$COMMAND_STRING" "SIGINT"
     return 0
 }
 
