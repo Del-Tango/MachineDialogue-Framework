@@ -4,6 +4,42 @@
 #
 # DISPLAY
 
+function display_loading_message () {
+    local WAIT_SECONDS=$1
+    local LOADING_STRING="$2"
+    local PREVIOUS='-'
+    ITERCOUNT=`echo "$WAIT_SECONDS * 2" | bc`
+    for item in `seq $ITERCOUNT`; do
+        local MESSAGE_STRING=""
+        case "$PREVIOUS" in
+            '/')
+                local PREVIOUS='-'
+                ;;
+            '-')
+                local PREVIOUS='\'
+                ;;
+            '\')
+                local PREVIOUS='/'
+                ;;
+        esac
+        local MESSAGE_STRING="${LOADING_STRING}($PREVIOUS)"
+        clear; echo "$MESSAGE_STRING"; sleep 0.5
+    done
+    return 0
+}
+
+function display_script_banner () {
+    local CLEAR_SCREEN=${1:-clear-screen-on}
+    figlet -f lean -w 1000 "$SCRIPT_NAME" > "${MD_DEFAULT['tmp-file']}"
+    case "$CLEAR_SCREEN" in
+        'clear-screen-on')
+            clear
+            ;;
+    esac; echo -n "${BLUE}`cat ${MD_DEFAULT['tmp-file']}`${RESET}"
+    echo -n > ${MD_DEFAULT['tmp-file']}
+    return 0
+}
+
 # TODO - Under construction
 function display_settings () {
     DISPLAY_LOGGING=`format_flag_colors "$MD_LOGGING"`

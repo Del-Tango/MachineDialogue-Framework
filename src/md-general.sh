@@ -4,14 +4,71 @@
 #
 # GENERAL
 
+function remove_system_group () {
+    local GROUP_NAME="$1"
+    check_safety_off
+    if [ $? -ne 0 ]; then
+        warning_msg "${GREEN}$SCRIPT_NAME${RESET} safety is"\
+            "(${GREEN}ON${RESET}). System group (${YELLOW}$GROUP_NAME${RESET})"\
+            "is not beeing removed."
+    else
+        groupdel "$GROUP_NAME" &> /dev/null
+        return $?
+    fi
+    return 1
+}
+
+function add_system_user_to_group () {
+    local USER_NAME="$1"
+    local GROUP_NAME="$2"
+    check_safety_off
+    if [ $? -ne 0 ]; then
+        warning_msg "${GREEN}$SCRIPT_NAME${RESET} safety is"\
+            "(${GREEN}ON${RESET}). System user (${YELLOW}$USER_NAME${RESET})"\
+            "is not beeing added to group (${YELLOW}$GROUP_NAME${RESET})."
+    else
+        usermod -G "$GROUP_NAME" "$USER_NAME" &> /dev/null
+        return $?
+    fi
+    return 1
+}
+
+function filter_file_content () {
+    local FILE_PATH="$1"
+    local START_PATTERN="$2"
+    local STOP_PATTERN="$3"
+    awk "/${START_PATTERN}/ {p=1}; p; /${STOP_PATTERN}/ {p=0}" "$FILE_PATH" 2> /dev/null
+    return $?
+}
+
+function remove_system_user () {
+    local USER_NAME="$1"
+    check_safety_off
+    if [ $? -ne 0 ]; then
+        warning_msg "${GREEN}$SCRIPT_NAME${RESET} safety is"\
+            "(${GREEN}ON${RESET}). System user (${YELLOW}$USER_NAME${RESET})"\
+            "is not beeing removed."
+    else
+        deluser "$USER_NAME" &> /dev/null
+        return $?
+    fi
+    return 1
+}
+
+function update_apt_dependencies () {
+    DEPENDENCIES=( $@ )
+    MD_APT_DEPENDENCIES=( ${MD_APT_DEPENDENCIES[@]} ${DEPENDENCIES[@]} )
+    return 0
+}
+
 function update_pip_dependencies () {
-    local DEPENDENCIES=( $@ )
+    DEPENDENCIES=( $@ )
     MD_PIP_DEPENDENCIES=( ${MD_PIP_DEPENDENCIES[@]} ${DEPENDENCIES[@]} )
     return 0
 }
 
 function update_pip3_dependencies () {
-    local DEPENDENCIES=( $@ )
+    DEPENDENCIES=( $@ )
     MD_PIP3_DEPENDENCIES=( ${MD_PIP3_DEPENDENCIES[@]} ${DEPENDENCIES[@]} )
     return 0
 }
@@ -157,7 +214,7 @@ function remove_directory () {
         echo; error_msg "Invalid directory path ${RED}$DIR_PATH${RESET}."
         return 1
     fi
-    find "$DIR_PATH" -type f | xargs shred f -n 10 -z -u &> /dev/null
+#   find "$DIR_PATH" -type f | xargs shred -f -n 10 -z -u &> /dev/null
     rm -rf "$DIR_PATH" &> /dev/null
     return $?
 }
@@ -288,7 +345,7 @@ function trap_signals () {
 
 function trap_interrupt_signal () {
     local COMMAND_STRING="$@"
-    trap_signals "$COMMAND_STRING" "SIGING"
+    trap_signals "$COMMAND_STRING" "SIGINT"
     return 0
 }
 

@@ -4,6 +4,44 @@
 #
 # ACTIONS
 
+function action_install_dependencies () {
+    PACKAGE_MANAGERS=( $@ )
+    echo
+    fetch_ultimatum_from_user "${YELLOW}Are you sure about this? Y/N${RESET}"
+    if [ $? -ne 0 ]; then
+        echo; info_msg "Aborting action."
+        return 1
+    fi
+    if [ ${#PACKAGE_MANAGERS[@]} -eq 0 ]; then
+        PACKAGE_MANAGERS=( 'apt' 'pip' 'pip3' )
+    fi
+    for manager in ${PACKAGE_MANAGERS[@]}; do
+        case "$manager" in
+            'apt')
+                apt_install_dependencies
+                ;;
+            'pip')
+                pip_install_dependencies
+                ;;
+            'pip3')
+                pip3_install_dependencies
+                ;;
+        esac
+    done
+    return $?
+}
+
+function action_help () {
+    echo; info_msg "Select cargo script to view instructions for:
+    "
+    CLI_CARGO=`fetch_selection_from_user "Help" ${!MD_CARGO[@]}`
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    ${MD_CARGO[$CLI_CARGO]} --help
+    return $?
+}
+
 function action_create_checksum_of_file () {
     local FILE_PATH="$1"
     FILE_CHECKSUM=`create_file_checksum "$FILE_PATH"`

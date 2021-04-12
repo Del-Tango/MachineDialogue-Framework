@@ -4,6 +4,14 @@
 #
 # CHECKERS
 
+function check_fifo_exists () {
+    local FIFO_PATH="$1"
+    if [ ! -p "$FIFO_PATH" ]; then
+        return 1
+    fi
+    return 0
+}
+
 function check_valid_wireless_interface () {
     local WIRELESS_INTERFACE="$1"
     WIFI_INTERFACES=( `fetch_all_wireless_interfaces` )
