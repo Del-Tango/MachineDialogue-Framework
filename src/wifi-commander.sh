@@ -31,12 +31,6 @@ fi
 for md_script in `ls ${WC_DIRECTORY} | grep -e '^md-'`; do
     source "${WC_DIRECTORY}/$md_script"
 done
-#   if [ -f "$MD_DISPLAY" ] && [ -f "$MD_LOGGERS" ]; then
-#       source "$MD_DISPLAY"
-#       source "$MD_LOGGERS"
-#   else
-#       echo "[ WARNING ]: No Machine Dialogue scripts found to source!"
-#   fi
 
 function get_wireless_interfaces(){
 	local LIST_INTERFACES=`ls /sys/class/net | egrep "^wl|^ml"`
@@ -298,7 +292,6 @@ function connect_without_enc(){
 function connect_with_enc(){
 	local SSID="$1"
 	local PASSWORD="$2"
-#   info_msg "Wireless (with_enc):\n\tINTERFACE: '$INTERFACE'\n\tSSID: '$SSID'\n\tPASS: '$PASSWORD'"
 	echo -e "update_config=1\nctrl_interface=/var/run/wpa_supplicant\nctrl_interface_group=0\neapol_version=1\nap_scan=1\nfast_reauth=1" > $WPA_SUPPLICANT_CONF_FILE
 	wpa_passphrase "$SSID" "$PASSWORD" >> $WPA_SUPPLICANT_CONF_FILE 2> /dev/null
 	sed -i 's/network={/network={\n\tscan_ssid=0\n\tkey_mgmt=WPA-PSK/' $WPA_SUPPLICANT_CONF_FILE
@@ -320,7 +313,6 @@ function print_help () {
 	echo -e "\t$0 --unblock"
 	echo
 	echo -e "Ex. $0" '--connect-pass ChurchOfSubGenious send1$ToThechurchOfSuBgEnIoUs'
-
 	echo -e "\nExit codes:"
 	echo "  0 - Execution terminated successfully"
 	echo "  1 - No wireless interfaces"
