@@ -4,17 +4,32 @@
 #
 # WIFI COMMANDER
 
-declare -A AUTOMATION
-declare -A DEFAULT
-
 CONF_FILE_PATH="$1"
+MD_DISPLAY="md-display.sh"
 
-if [ ! -z "$CONF_FILE_PATH" ] && [ -f $CONF_FILE_PATH ]; then
-    source $CONF_FILE_PATH
+if [ ! -z "$CONF_FILE_PATH" ] && [ -f "$CONF_FILE_PATH" ]; then
+    declare -A MD_DEFAULT
+    declare -A MD_CONTROLLERS
+    declare -A MD_CONTROLLER_BANNERS
+    declare -A MD_CONTROLLER_OPTIONS
+    declare -A MD_CONTROLLER_OPTION_KEYS
+    declare -A MD_SOURCE
+    declare -A MD_LOGS
+    declare -a MD_LOGGING_LEVELS
+    declare -a MD_APT_DEPENDENCIES
+    declare -A MD_IMPORTS
+    declare -A MD_CARGO
+    declare -A MD_PAYLOAD
+    declare -a MD_PIP_DEPENDENCIES
+    declare -a MD_PIP3_DEPENDENCIES
+    source "$CONF_FILE_PATH"
+else
+    echo "[ WARNING ]: No config file found to source!"
 fi
-
-if [ -f ${AUTOMATION['cli-messages']} ]; then
-    source ${AUTOMATION['cli-messages']}
+if [ -f "$MD_DISPLAY" ]; then
+    source "$MD_DISPLAY"
+else
+    echo "[ WARNING ]: No display script found to source!"
 fi
 
 function get_wireless_interfaces(){
