@@ -8,7 +8,7 @@ function action_display_available_wireless_access_points () {
     echo; info_msg "Discovering wireless network access points..."
     display_available_wireless_access_points
     if [ $? -ne 0 ]; then
-        warning_msg "Something went wrong."\
+        nok_msg "Something went wrong."\
             "Could not display wireless access points."
         return 1
     fi
@@ -18,21 +18,23 @@ function action_display_available_wireless_access_points () {
 function action_disconnect_from_wireless_access_point () {
     echo; info_msg "You are about to disconnect from wireless network."
     fetch_ultimatum_from_user "Are you sure about this? ${YELLOW}Y/N${RESET}"
-    if [ $? -ne 0 ]; then
-        echo; info_msg "Aborting action."
+    echo; if [ $? -ne 0 ]; then
+        info_msg "Aborting action."
         return 1
     fi
     check_safety_on
     if [ $? -eq 0 ]; then
         warning_msg "Safety is ${GREEN}ON${RESET}."\
             "Connection with wireless access point will not be performed."
-        return 1
+        return 2
     fi
     disconnect_from_wireless_access_point
     if [ $? -ne 0 ]; then
-        warning_msg "Something went wrong."\
+        nok_msg "Something went wrong."\
             "Could not disconnect from wireless access point."
-        return 1
+        return 3
+    else
+        ok_msg "Successfully disconected from wireless access point!"
     fi
     return 0
 }
