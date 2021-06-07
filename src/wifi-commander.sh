@@ -5,7 +5,8 @@
 # WIFI COMMANDER
 
 CONF_FILE_PATH="$1"
-MD_DISPLAY="md-display.sh"
+WC_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+WPA_SUPPLICANT_CONF_FILE="${WC_DIRECTORY}/wpa-supplicant.conf"
 
 if [ ! -z "$CONF_FILE_PATH" ] && [ -f "$CONF_FILE_PATH" ]; then
     declare -A MD_DEFAULT
@@ -26,11 +27,16 @@ if [ ! -z "$CONF_FILE_PATH" ] && [ -f "$CONF_FILE_PATH" ]; then
 else
     echo "[ WARNING ]: No config file found to source!"
 fi
-if [ -f "$MD_DISPLAY" ]; then
-    source "$MD_DISPLAY"
-else
-    echo "[ WARNING ]: No display script found to source!"
-fi
+
+for md_script in `ls ${WC_DIRECTORY} | grep -e '^md-'`; do
+    source "${WC_DIRECTORY}/$md_script"
+done
+#   if [ -f "$MD_DISPLAY" ] && [ -f "$MD_LOGGERS" ]; then
+#       source "$MD_DISPLAY"
+#       source "$MD_LOGGERS"
+#   else
+#       echo "[ WARNING ]: No Machine Dialogue scripts found to source!"
+#   fi
 
 function get_wireless_interfaces(){
 	local LIST_INTERFACES=`ls /sys/class/net | egrep "^wl|^ml"`
@@ -74,6 +80,7 @@ function check_wifi_state(){
 	local IS_BLOCK=$(rfkill list $IDX | awk '/Soft blocked: / {print $NF}')
 	if [ "$IS_BLOCK" = "no" ]; then
         info_msg "Wireless network is ${GREEN}ON${RESET} (${GREEN}$IDX${RESET})"
+        return 0
 	elif [ "$IS_BLOCK" = "yes" ]; then
         error_msg "Wireless network is ${RED}OFF${RESET} (${RED}$IDX${RESET})."
 		exit 4
@@ -81,6 +88,7 @@ function check_wifi_state(){
         error_msg "Software error."
 		exit 101
 	fi
+    return 1
 }
 
 function check_is_connected(){
@@ -89,11 +97,13 @@ function check_is_connected(){
 	local RET=${RET:-NULL}
 	if [ "$RET" = "NULL" ]; then
         info_msg "Wireless network not connected."
+        return 1
 	else
 		OLD_SSID=$(echo "$RET" | awk -F ":" '/ESSID/ {print $2}' | sed 's/\"//g')
         info_msg "Wireless network is already connected on (${GREEN}$OLD_SSID${RESET})."
 		IS_ALLREADY_CONNECTE=1
 	fi
+    return 0
 }
 
 function verify_status_dhcpcd(){
@@ -342,10 +352,16 @@ while [ $# -gt 0 ]; do
 		--connect-pass)
 			check_wifi_state
 			check_is_connected
+            if [ $? -eq 0 ]; then
+                break
+            fi
 			connect_with_enc "$2" "$3"
 		;;
 		--connect-without-pass)
 			check_wifi_state
+            if [ $? -eq 0 ]; then
+                break
+            fi
 			check_is_connected
 			connect_without_enc "$2"
 		;;

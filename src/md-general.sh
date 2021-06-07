@@ -4,6 +4,53 @@
 #
 # GENERAL
 
+function connect_to_wireless_access_point () {
+    local CONNECTION_MODE="$1"
+    local TARGET_ESSID="$2"
+    local WIFI_PASSWORD="$3"
+    check_safety_off
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    case "$CONNECTION_MODE" in
+        'password-on')
+            ${MD_CARGO['wifi-commander']} \
+                "$CONF_FILE_PATH" \
+                '--connect-pass' "$TARGET_ESSID" "$WIFI_PASSWORD"
+            ;;
+        'password-off')
+            ${MD_CARGO['wifi-commander']} \
+                "$CONF_FILE_PATH" \
+                '--connect-without-pass' "$TARGET_ESSID"
+            ;;
+        *)
+            echo; info_msg "No connection mode specified,"\
+                "defaulting to password protected."
+            ${MD_CARGO['wifi-commander']} \
+                "$CONF_FILE_PATH" \
+                '--connect-pass' "$TARGET_ESSID" "$WIFI_PASSWORD"
+            ;;
+    esac
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 0 ]; then
+        set_connected_essid "$TARGET_ESSID"
+    fi
+    return $EXIT_CODE
+}
+
+function disconnect_from_wireless_access_point () {
+    check_safety_off
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    wpa_cli terminate &> /dev/null
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 0 ]; then
+        set_connected_essid "Unconnected"
+    fi
+    return $EXIT_CODE
+}
+
 function remove_system_group () {
     local GROUP_NAME="$1"
     check_safety_off
@@ -84,59 +131,6 @@ function lan_scan () {
         ) &
     done; sleep 1
     return 0
-}
-
-function connect_to_wireless_access_point () {
-    local CONNECTION_MODE="$1"
-    local TARGET_ESSID="$2"
-    local WIFI_PASSWORD="$3"
-    check_safety_off
-    if [ $? -ne 0 ]; then
-        warning_msg "${GREEN}$SCRIPT_NAME${RESET}"\
-            "safety is (${GREEN}ON${RESET})."\
-            "Machine will not be connecting network."
-        return 0
-    fi
-    case "$CONNECTION_MODE" in
-        'password-on')
-            ${MD_CARGO['wifi-commander']} \
-                "$CONF_FILE_PATH" \
-                --connect-pass "$TARGET_ESSID" "$WIFI_PASSWORD"
-            ;;
-        'password-off')
-            ${MD_CARGO['wifi-commander']} \
-                "$CONF_FILE_PATH" \
-                --connect-without-pass "$TARGET_ESSID"
-            ;;
-        *)
-            echo; info_msg "No connection mode specified,"\
-                "defaulting to password protected."
-            ${MD_CARGO['wifi-commander']} \
-                "$CONF_FILE_PATH" \
-                --connect-pass "$TARGET_ESSID" "$WIFI_PASSWORD"
-            ;;
-    esac
-    EXIT_CODE=$?
-    if [ $EXIT_CODE -eq 0 ]; then
-        set_connected_essid "$TARGET_ESSID"
-    fi
-    return $EXIT_CODE
-}
-
-function disconnect_from_wireless_access_point () {
-    check_safety_off
-    if [ $? -ne 0 ]; then
-        echo; warning_msg "${GREEN}$SCRIPT_NAME${RESET}"\
-            "safety is (${GREEN}ON${RESET})."\
-            "Machine will not be disconnecting from network."
-        return 0
-    fi
-    wpa_cli terminate &> /dev/null
-    EXIT_CODE=$?
-    if [ $EXIT_CODE -eq 0 ]; then
-        set_connected_essid "Unconnected"
-    fi
-    return $EXIT_CODE
 }
 
 function shred_directory () {
