@@ -4,6 +4,44 @@
 #
 # GENERAL
 
+function flowctrl_start() {
+    local JSON_FILE_PATH="$1"
+    local BACKGROUND=$2
+    local ARGUMENTS=(
+        `format_flowctrl_cargo_action_start_args ${JSON_FILE_PATH}`
+    )
+    local COMMAND="${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}"
+    if [[ ${BACKGROUND} -ne 0 ]]: then
+        local COMMAND="${COMMAND} &> /dev/null &"
+    fi
+    ${COMMAND}
+    return $?
+}
+
+function flowctrl_pause() {
+    local ARGUMENTS=( `format_flowctrl_cargo_action_pause_args` )
+    ${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}
+    return $?
+}
+
+function flowctrl_resume() {
+    local ARGUMENTS=( `format_flowctrl_cargo_action_resume_args` )
+    ${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}
+    return $?
+}
+
+function flowctrl_stop() {
+    local ARGUMENTS=( `format_flowctrl_cargo_action_stop_args` )
+    ${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}
+    return $?
+}
+
+function flowctrl_purge() {
+    local ARGUMENTS=( `format_flowctrl_cargo_action_purge_args` )
+    ${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}
+    return $?
+}
+
 function connect_to_wireless_access_point () {
     local CONNECTION_MODE="$1"
     local TARGET_ESSID="$2"
@@ -266,7 +304,7 @@ function write_to_file () {
     if [ $? -ne 0 ]; then
         echo; error_msg "File (${RED}$FILE_PATH${RESET}) does not exist."
         echo; return 1
-    elif [ -z $CONTENT ]; then
+    elif [ -z "$CONTENT" ]; then
         echo; warning_msg "No content specified."
         echo; return 2
     fi
@@ -405,19 +443,20 @@ function bind_controller_option_to_menu () {
             "not found."
         return 3
     fi
-    debug_msg "Confirmed bind target menu controller"\
-        "${GREEN}$MENU_RESOURCE${RESET} exists."
+    # TODO - WARNING - Following debug messages may lead to log spam
+#   debug_msg "Confirmed bind target menu controller"\
+#       "${GREEN}$MENU_RESOURCE${RESET} exists."
     CONTROLLER_JUMP_KEY=`format_menu_controller_jump_key \
         "$MENU_CONTROLLER" "$MENU_OPTION"`
-    debug_msg "${CYAN}$MENU_CONTROLLER${RESET} controller jump key is"\
-        "${GREEN}$CONTROLLER_JUMP_KEY${RESET}."
+#   debug_msg "${CYAN}$MENU_CONTROLLER${RESET} controller jump key is"\
+#       "${GREEN}$CONTROLLER_JUMP_KEY${RESET}."
     NEXT_MENU_OPTIONS=( `fetch_all_menu_controller_options "$MENU_CONTROLLER"` )
-    debug_msg "${CYAN}$MENU_CONTROLLER${RESET} options are"\
-        "${YELLOW}${NEXT_MENU_OPTIONS[@]}${RESET}."
+#   debug_msg "${CYAN}$MENU_CONTROLLER${RESET} options are"\
+#       "${YELLOW}${NEXT_MENU_OPTIONS[@]}${RESET}."
     FUNCTION_RESOURCE=`format_menu_controller_jumper_function_resource \
         "$MENU_RESOURCE"`
-    debug_msg "Function resource for controller option"\
-        "${YELLOW}$MENU_OPTION${RESET} is ${GREEN}$FUNCTION_RESOURCE${RESET}."
+#   debug_msg "Function resource for controller option"\
+#       "${YELLOW}$MENU_OPTION${RESET} is ${GREEN}$FUNCTION_RESOURCE${RESET}."
     set_menu_controller_action_key "$CONTROLLER_JUMP_KEY" "$FUNCTION_RESOURCE"
     EXIT_CODE=$?
     if [ $EXIT_CODE -ne 0 ]; then

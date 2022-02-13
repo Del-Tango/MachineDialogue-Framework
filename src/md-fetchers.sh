@@ -455,9 +455,10 @@ function fetch_selection_from_user () {
 }
 
 function fetch_menu_controllers_with_extended_banner () {
-    debug_msg "Detected (${WHITE}${#MD_CONTROLLER_BANNERS[@]}${RESET})"\
-        "controllers with extended banners:"\
-        "${YELLOW}${!MD_CONTROLLER_BANNERS[@]}${RESET}"
+    # TODO - Following log message may lead to log spam
+#   debug_msg "Detected (${WHITE}${#MD_CONTROLLER_BANNERS[@]}${RESET})"\
+#       "controllers with extended banners:"\
+#       "${YELLOW}${!MD_CONTROLLER_BANNERS[@]}${RESET}"
     echo ${!MD_CONTROLLER_BANNERS[@]}
     return $?
 }
@@ -498,8 +499,9 @@ function fetch_jump_keys () {
 }
 
 function fetch_action_keys () {
-    debug_msg "Detected (${WHITE}${#MD_CONTROLLER_OPTION_KEYS[@]}${RESET})"\
-        "option keys: ${YELLOW}${!MD_CONTROLLER_OPTION_KEYS[@]}${RESET}."
+    # TODO - Following log message may lead to log spam
+#   debug_msg "Detected (${WHITE}${#MD_CONTROLLER_OPTION_KEYS[@]}${RESET})"\
+#       "option keys: ${YELLOW}${!MD_CONTROLLER_OPTION_KEYS[@]}${RESET}."
     if [ ${#MD_CONTROLLER_OPTION_KEYS[@]} -eq 0 ]; then
         error_msg "No ${BLUE}$SCRIPT_NAME${RESET}"\
             "${RED}action keys${RESET} found."
@@ -514,8 +516,9 @@ function fetch_all_menu_controller_options () {
     CONTROLLER_OPTIONS=(
         `echo "${MD_CONTROLLER_OPTIONS[$MENU_CONTROLLER_LABEL]}" | tr ',' ' '`
     )
-    debug_msg "Controller: ${CYAN}$MENU_CONTROLLER_LABEL${RESET},"\
-        "Options: ${YELLOW}${CONTROLLER_OPTIONS[@]}${RESET}."
+    # TODO - Following log message may lead to log spam
+#   debug_msg "Controller: ${CYAN}$MENU_CONTROLLER_LABEL${RESET},"\
+#       "Options: ${YELLOW}${CONTROLLER_OPTIONS[@]}${RESET}."
     echo "${CONTROLLER_OPTIONS[@]}"
     return $?
 }
