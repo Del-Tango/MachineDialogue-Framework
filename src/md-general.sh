@@ -6,12 +6,12 @@
 
 function flowctrl_start() {
     local JSON_FILE_PATH="$1"
-    local BACKGROUND=$2
+    local BACKGROUND=${2:-0}
     local ARGUMENTS=(
         `format_flowctrl_cargo_action_start_args ${JSON_FILE_PATH}`
     )
     local COMMAND="${MD_CARGO['flow-ctrl']} ${ARGUMENTS[@]}"
-    if [[ ${BACKGROUND} -ne 0 ]]: then
+    if [[ ${BACKGROUND} -ne 0 ]]; then
         local COMMAND="${COMMAND} &> /dev/null &"
     fi
     ${COMMAND}
