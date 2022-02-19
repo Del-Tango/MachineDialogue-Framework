@@ -13,7 +13,7 @@ def shell_cmd(command, user=None):
     log.debug('')
     log.debug('Issuing system command: ({})'.format(command))
     if user:
-        command = "su - -c \'{}\'".format(command)
+        command = "su {} -c \'{}\'".format(user, command)
     process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
     output, errors = process.communicate()
     log.debug('Output: ({}), Errors: ({})'.format(output, errors))
